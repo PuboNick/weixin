@@ -2,8 +2,8 @@
 
 class App
 {
-  var $appid = 'wxe2e7ccd35beb9422';
-  var $secret = '52057c7f2f75309d1cff1e7a9f5cd227';
+  var $appid = 'wxc14068a536ab918c';
+  var $secret = 'bb7f50f320a97b5042f228388199875b';
   var $templates = [
     'temp' => 'CJLF6KomEcU_-EgW4uZGtqjHHoV6M-AE-OIhzAI28po',
     'status' => 'HFblz-UJEhmrbTudTbbG1SauNZgZxoSZ0V3JCGw5Was',
