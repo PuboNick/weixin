@@ -10,7 +10,6 @@ class App
     'warning' => 'GbJ_2b_6pfDc4C7XjjIi9E2EK_AXapRkJblEW3TVzcY'
   ];
   var $access_file = 'access_token.json';
-  var $users_file = '$user_list';
   function __construct()
   {
     if (!empty($_GET['echostr'])) {
