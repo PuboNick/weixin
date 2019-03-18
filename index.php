@@ -7,7 +7,8 @@ class App
   var $templates = [
     'temp' => 'CJLF6KomEcU_-EgW4uZGtqjHHoV6M-AE-OIhzAI28po',
     'status' => 'HFblz-UJEhmrbTudTbbG1SauNZgZxoSZ0V3JCGw5Was',
-    'warning' => 'GbJ_2b_6pfDc4C7XjjIi9E2EK_AXapRkJblEW3TVzcY'
+    'warning' => 'GbJ_2b_6pfDc4C7XjjIi9E2EK_AXapRkJblEW3TVzcY',
+    'gprs' => 'SjPd8w33ojvOnrKcXXmliCn5jDF1Hi47vATxzck4UMg'
   ];
   var $access_file = 'access_token.json';
   function __construct()
@@ -28,11 +29,13 @@ class App
     if ($action === 'login' && !empty($_GET['str'])) {
       $this->scan_login();
     } elseif ($action === 'send_wendu_message' && $this->check_params_5()) {
-      $this->send_wendu_message();
-    } elseif ($action === 'send_warning_message' && $this->check_params_5()) {
-      $this->send_warning_message();
-    } elseif ($action === 'send_status_message' && $this->check_params_3()) {
-      $this->send_status_message();
+      $this->set_message_5($this->templates['temp']);
+    } elseif ($action === 'send_warning_message' && $this->check_params_3()) {
+      $this->set_message_3($this->templates['warning']);
+    } elseif ($action === 'send_status_message' && $this->check_params_5()) {
+      $this->set_message_5($this->templates['status']);
+    } elseif ($action === 'send_gprs_message' && $this->check_params_3()) {
+      $this->set_message_3($this->templates['gprs']);
     } elseif ($action === 'create_menu') {
       $this->set_menu();
     } elseif ($action === 'create_tag' && !empty($_GET['tag_name'])) {
@@ -144,7 +147,7 @@ class App
     $remark = array('value' => $_GET['remark']);
     $data = array('first' => $first, 'keyword1' => $keyword1, 'keyword2' => $keyword2, 'keyword3' => $keyword3, 'keyword4' => $keyword4, 'keyword5' => $keyword5, 'remark' => $remark);
     $template_message = array('touser' => $_GET['openid'], 'template_id' => $template_id,'data' => $data);
-    return $template_message;
+    $this->send_template_message($template_message);
   }
   function set_message_3($template_id)
   {
@@ -155,7 +158,7 @@ class App
     $remark = array('value' => $_GET['remark']);
     $data = array('first' => $first, 'keyword1' => $keyword1, 'keyword2' => $keyword2, 'keyword3' => $keyword3, 'remark' => $remark);
     $template_message = array('touser' => $_GET['openid'], 'template_id' => $template_id,'data' => $data);
-    return $template_message;
+    $this->send_template_message($template_message);
   }
   function send_template_message($template_message)
   {
@@ -281,21 +284,6 @@ class App
     $str = $_GET['str'];
     $scene = array('scene_str'=>'{"str":"'.$str.'","action":"login"}');
     $this->get_code($scene);
-  }
-  function send_wendu_message()
-  {
-    $template_message = $this->set_message_5($this->templates['temp']);
-    $this->send_template_message($template_message);
-  }
-  function send_warning_message()
-  {
-    $template_message = $this->set_message_5($this->templates['warning']);
-    $this->send_template_message($template_message);
-  }
-  function send_status_message()
-  {
-    $template_message = $this->set_message_3($this->templates['status']);
-    $this->send_template_message($template_message);
   }
   function check_params_3()
   {
