@@ -8,7 +8,8 @@ class App
     'temp' => 'CJLF6KomEcU_-EgW4uZGtqjHHoV6M-AE-OIhzAI28po',
     'status' => 'HFblz-UJEhmrbTudTbbG1SauNZgZxoSZ0V3JCGw5Was',
     'warning' => 'GbJ_2b_6pfDc4C7XjjIi9E2EK_AXapRkJblEW3TVzcY',
-    'gprs' => 'SjPd8w33ojvOnrKcXXmliCn5jDF1Hi47vATxzck4UMg'
+    'gprs' => 'SjPd8w33ojvOnrKcXXmliCn5jDF1Hi47vATxzck4UMg',
+    'equ' => 'A2uD_rCiiB6wd1Hde1zHWsRzHHY8tjgiNCwJ423e7es'
   ];
   var $access_file = 'access_token.json';
   function __construct()
@@ -36,6 +37,8 @@ class App
       $this->set_message_5($this->templates['status']);
     } elseif ($action === 'send_gprs_message' && $this->check_params_3()) {
       $this->set_message_3($this->templates['gprs']);
+    } elseif ($action === 'send_equ_message' && $this->check_params_3()) {
+      $this->set_message_3($this->templates['equ']);
     } elseif ($action === 'create_menu') {
       $this->set_menu();
     } elseif ($action === 'create_tag' && !empty($_GET['tag_name'])) {
