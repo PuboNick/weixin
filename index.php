@@ -2,6 +2,7 @@
 
 class App
 {
+  var $base_uri = 'https://api.weixin.qq.com/cgi-bin';
   var $appid = 'wxc14068a536ab918c';
   var $secret = 'bb7f50f320a97b5042f228388199875b';
   var $templates = [
@@ -16,13 +17,17 @@ class App
   {
     if (!empty($_GET['echostr'])) {
       echo $_GET['echostr'];
-    } elseif (!empty($_GET['action'])) {
+    } elseif ($this->check_secret()) {
       $this->handle_web();
     } elseif (!empty(file_get_contents('php://input'))) {
       $this->handle_app();
     } else {
       echo "Wechat Backend.";
     }
+  }
+  function check_secret()
+  {
+    return !empty($_GET['action']) && !empty($_GET['timestamp']) && !empty($_GET['secret']) && $_GET['secret'] === md5($this->appid . $this->secret . $_GET['timestamp']);
   }
   function handle_web()
   {
@@ -123,7 +128,7 @@ class App
   }
   function save_access_token()
   {
-    $url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
+    $url= $this->$base_uri . "/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
     $access_token = $this->do_get($url)['access_token'];
     $end_time = date('Y-m-d H:i:s',strtotime("+19 minute"));
     $data = ['access_token' => $access_token, 'end_time' => $end_time];
@@ -166,14 +171,14 @@ class App
   function send_template_message($template_message)
   {
     $access_token = $this->get_access_token();
-    $url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=".$access_token;
+    $url = $this->$base_uri . "/message/template/send?access_token=".$access_token;
     $result = $this->do_post($url, $template_message);
     print_r(json_encode($result, JSON_UNESCAPED_UNICODE));
   }
   function get_code($scene)
   {
     $access_token = $this->get_access_token();
-    $url = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=".$access_token;
+    $url = $this->$base_uri . "/qrcode/create?access_token=".$access_token;
     $action_info = array('scene'=>$scene);
     $params = array('expire_seconds' => 604800, 'action_name' => 'QR_STR_SCENE', 'action_info' => $action_info);
     $result = $this->do_post($url, $params);
@@ -188,7 +193,7 @@ class App
   function set_menu()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $access_token;
+    $url = $this->$base_uri . '/menu/create?access_token=' . $access_token;
     $redirect_url = urlencode('http://www.woleit.com/wechat/login');
     $btn_bind_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$this->appid.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect';
     $button = array('type' => 'view','name' => '我的设备', 'url' => $btn_bind_url);
@@ -200,7 +205,7 @@ class App
   function create_tag()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/tags/create?access_token=' . $access_token;
+    $url = $this->$base_uri . '/tags/create?access_token=' . $access_token;
     $tag = array('name' => $_GET['tag_name']);
     $params = array('tag' => $tag);
     $result = $this->do_post($url, $params);
@@ -209,7 +214,7 @@ class App
   function delete_tag()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/tags/delete?access_token=' . $access_token;
+    $url = $this->$base_uri . '/tags/delete?access_token=' . $access_token;
     $tag = array('id' => $_GET['tag_id']);
     $params = array('tag' => $tag);
     $result = $this->do_post($url, $params);
@@ -218,14 +223,14 @@ class App
   function get_tags_list()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/tags/get?access_token=' . $access_token;
+    $url = $this->$base_uri . '/tags/get?access_token=' . $access_token;
     $result = $this->do_get($url);
     print_r(json_encode($result, JSON_UNESCAPED_UNICODE));
   }
   function add_user_tag()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging?access_token=' . $access_token;
+    $url = $this->$base_uri . '/tags/members/batchtagging?access_token=' . $access_token;
     $openid_list = array($_GET['openid']);
     $params = array('openid_list' => $openid_list, 'tagid' => $_GET['tag_id']);
     $result = $this->do_post($url, $params);
@@ -234,7 +239,7 @@ class App
   function delete_user_tag()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/tags/members/batchuntagging?access_token=' . $access_token;
+    $url = $this->$base_uri . '/tags/members/batchuntagging?access_token=' . $access_token;
     $openid_list = array($_GET['openid']);
     $params = array('openid_list' => $openid_list, 'tagid' => $_GET['tag_id']);
     $result = $this->do_post($url, $params);
@@ -243,7 +248,7 @@ class App
   function conditional_menu()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token=' . $access_token;
+    $url = $this->$base_uri . '/menu/addconditional?access_token=' . $access_token;
     $redirect_url2 = urlencode('http://www.woleit.com/wechat/login');
     $btn_bind_url3 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$this->appid.'&redirect_uri='.$redirect_url2.'&response_type=code&scope=snsapi_base&state=#wechat_redirect';
     $button1 = array('name' => '电缆沟监控', 'type' => 'view', 'url' => $btn_bind_url3);
@@ -256,13 +261,13 @@ class App
   function delete_menu()
   {
     $access_token = $this->get_access_token();
-    $url = 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=' . $access_token;
+    $url = $this->$base_uri . '/menu/delete?access_token=' . $access_token;
     $result = $this->do_get($url);
     print_r(json_encode($result, JSON_UNESCAPED_UNICODE));
   }
   function get_user_tags(){
     $access_token = $this->get_access_token();
-    $tag_url = 'https://api.weixin.qq.com/cgi-bin/tags/getidlist?access_token=' . $access_token;
+    $tag_url = $this->$base_uri . '/tags/getidlist?access_token=' . $access_token;
     $params = array('openid' => $_GET['openid']);
     $tag_result = $this->do_post($tag_url, $params);
     if (array_key_exists('tagid_list', $tag_result)) {
@@ -276,7 +281,7 @@ class App
     $users = array();
     $user = array('openid' => $_GET['openid'], 'lang' => 'zh_CN');
     array_push($users, $user);
-    $user_list_url = 'https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token=' . $access_token;
+    $user_list_url = $this->$base_uri . '/user/info/batchget?access_token=' . $access_token;
     $params = array('user_list' => $users);
     $user_list = $this->do_post($user_list_url, $params)['user_info_list'];
     print_r(json_encode($user_list, JSON_UNESCAPED_UNICODE));
