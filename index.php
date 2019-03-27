@@ -3,8 +3,8 @@
 class App
 {
   var $base_uri = 'https://api.weixin.qq.com/cgi-bin';
-  var $appid = 'wxe2e7ccd35beb9422';
-  var $secret = '52057c7f2f75309d1cff1e7a9f5cd227';
+  var $appid = 'wxc14068a536ab918c';
+  var $secret = 'bb7f50f320a97b5042f228388199875b';
   var $templates = [
     'temp' => 'CJLF6KomEcU_-EgW4uZGtqjHHoV6M-AE-OIhzAI28po',
     'status' => 'HFblz-UJEhmrbTudTbbG1SauNZgZxoSZ0V3JCGw5Was',
@@ -23,7 +23,6 @@ class App
       $this->handle_app();
     } else {
       echo "Wechat Backend.";
-      echo md5($this->appid . $this->secret . $_GET['timestamp']);
     }
   }
   function check_values() {
@@ -194,7 +193,7 @@ class App
   {
     $access_token = $this->get_access_token();
     $url = $this->base_uri . '/menu/create?access_token=' . $access_token;
-    $redirect_url = urlencode('http://www.woleit.com/wechat/login');
+    $redirect_url = urlencode('http://www.woleit.com/login/wechat');
     $btn_bind_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$this->appid.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect';
     $button = array('type' => 'view','name' => '我的设备', 'url' => $btn_bind_url);
     $button = array($button);
