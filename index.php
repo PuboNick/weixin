@@ -307,10 +307,11 @@ class App
     return $a && $b && $c;
   }
   /* APP模块 */
-  function handle_scan()
+  function handle_scan($message)
   {
+    $data = json_decode($message->EventKey, true);
     if ($data['action'] === 'login') {
-      $this->res_openid($message);
+      $this->res_openid($message, $data['str']);
     }
   }
   function send_back_openid($message)
@@ -326,10 +327,9 @@ class App
     </xml>
     ";
   }
-  function res_openid($message)
+  function res_openid($message, $str)
   {
-    $data = json_decode($message->EventKey, true);
-    $result = $this->do_get('http://123.56.246.56:8099/api/weixin/scan?openid=' . $message->FromUserName . '&str=' . $data['str']);
+    $result = $this->do_get('http://123.56.246.56:8099/api/weixin/scan?openid=' . $message->FromUserName . '&str=' . $str);
     echo "<xml>
     <ToUserName><![CDATA[{$message->FromUserName}]]></ToUserName>
     <FromUserName><![CDATA[$message->ToUserName]]></FromUserName>
