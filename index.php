@@ -26,7 +26,10 @@ class App
     }
   }
   function check_values() {
-    return $_GET['secret'] === md5($this->appid . $this->secret . $_GET['timestamp']);
+    date_default_timezone_set('PRC');
+    $correct_timestamp = date('YmdHi',time()) === substr($_GET['timestamp'], 0, 12);
+    $correct_secret = md5($this->appid . $this->secret . $_GET['timestamp']) === $_GET['secret'];
+    return $correct_secret && $correct_timestamp;
   }
   function handle_web()
   {
@@ -129,7 +132,7 @@ class App
   {
     $url = $this->base_uri . "/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
     $access_token = $this->do_get($url)['access_token'];
-    $end_time = date('Y-m-d H:i:s',strtotime("+19 minute"));
+    $end_time = date('Y-m-d H:i:s', strtotime("+19 minute"));
     $data = ['access_token' => $access_token, 'end_time' => $end_time];
     $this->save_data($this->access_file, $data);
     return $access_token;
