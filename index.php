@@ -26,10 +26,7 @@ class App
     }
   }
   function check_values() {
-    date_default_timezone_set('PRC');
-    $correct_timestamp = date('YmdHi',time()) === substr($_GET['timestamp'], 0, 12);
-    $correct_secret = md5($this->appid . $this->secret . $_GET['timestamp']) === $_GET['secret'];
-    return $correct_secret && $correct_timestamp;
+    return $_GET['secret'] === md5($this->appid . $this->secret . $_GET['timestamp']);
   }
   function handle_web()
   {
@@ -46,6 +43,8 @@ class App
       $this->set_message_3($this->templates['gprs']);
     } elseif ($action === 'send_equ_message' && $this->check_params_3()) {
       $this->set_message_3($this->templates['equ']);
+    } elseif ($action === 'send_url_message' && check_url_param()) {
+      $this->send_url_message();
     } elseif ($action === 'create_menu') {
       $this->set_menu();
     } elseif ($action === 'create_tag' && !empty($_GET['tag_name'])) {
@@ -132,7 +131,7 @@ class App
   {
     $url = $this->base_uri . "/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
     $access_token = $this->do_get($url)['access_token'];
-    $end_time = date('Y-m-d H:i:s', strtotime("+19 minute"));
+    $end_time = date('Y-m-d H:i:s',strtotime("+19 minute"));
     $data = ['access_token' => $access_token, 'end_time' => $end_time];
     $this->save_data($this->access_file, $data);
     return $access_token;
@@ -308,6 +307,18 @@ class App
     $b = !empty($_GET['keyword3']) && !empty($_GET['openid']);
     $c = !empty($_GET['keyword4']) && !empty($_GET['keyword5']) && !empty($_GET['title']);
     return $a && $b && $c;
+  }
+  function check_url_param()
+  {
+    return !empty($_GET['users']) && !empty($_GET['content']) && !empty($_GET['msgid']);
+  }
+  function send_url_message()
+  {
+    $access_token = $this->get_access_token();
+    $uri = $this->base_uri . '/message/mass/send?access_token=' . $access_token;
+    $message = ['touser' => json_decode($_GET['users']), 'msgtype' => 'text', 'text' => ['content' => $_GET['content']], 'clientmsgid' => $_GET['msgid']];
+    $result = $this->do_post($uri, $message);
+    print_r(json_encode($result, JSON_UNESCAPED_UNICODE));
   }
   /* APP模块 */
   function handle_scan($message)
