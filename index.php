@@ -26,7 +26,9 @@ class App
     }
   }
   function check_values() {
-    return $_GET['secret'] === md5($this->appid . $this->secret . $_GET['timestamp']);
+    date_default_timezone_set("Asia/Shanghai");
+    $str = date('YmdHi',time());
+    return $_GET['secret'] === md5($this->appid . $this->secret . $_GET['timestamp']) && $str === substr($_GET['timestamp'], 0, 12);
   }
   function handle_web()
   {
@@ -43,7 +45,7 @@ class App
       $this->set_message_3($this->templates['gprs']);
     } elseif ($action === 'send_equ_message' && $this->check_params_3()) {
       $this->set_message_3($this->templates['equ']);
-    } elseif ($action === 'send_url_message' && check_url_param()) {
+    } elseif ($action === 'send_url_message' && $this->check_url_param()) {
       $this->send_url_message();
     } elseif ($action === 'create_menu') {
       $this->set_menu();
@@ -131,6 +133,7 @@ class App
   {
     $url = $this->base_uri . "/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
     $access_token = $this->do_get($url)['access_token'];
+    date_default_timezone_set("Asia/Shanghai");
     $end_time = date('Y-m-d H:i:s',strtotime("+19 minute"));
     $data = ['access_token' => $access_token, 'end_time' => $end_time];
     $this->save_data($this->access_file, $data);
@@ -139,6 +142,7 @@ class App
   function get_access_token()
   {
     $data = $this->get_data($this->access_file);
+    date_default_timezone_set("Asia/Shanghai");
     if ($data['end_time'] > date('Y-m-d H:i:s',time())) {
       return $data['access_token'];
     } else {
@@ -196,9 +200,11 @@ class App
     $access_token = $this->get_access_token();
     $url = $this->base_uri . '/menu/create?access_token=' . $access_token;
     $redirect_url = urlencode('http://www.woleit.com/login/wechat');
-    $btn_bind_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$this->appid.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect';
-    $button = array('type' => 'view','name' => '我的设备', 'url' => $btn_bind_url);
-    $button = array($button);
+    $btn_bind_url1 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$this->appid.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect';
+    $btn_bind_url2 = 'http://www.woleit.com/wole';
+    $button1 = array('type' => 'view','name' => '我的设备', 'url' => $btn_bind_url1);
+    $button2 = array('type' => 'view','name' => '沃勒官网', 'url' => $btn_bind_url2);
+    $button = array($button1, $button2);
     $menu_button = array('button' => $button);
     $result = $this->do_post($url, $menu_button);
     print_r(json_encode($result, JSON_UNESCAPED_UNICODE));
