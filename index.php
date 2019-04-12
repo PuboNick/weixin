@@ -350,14 +350,16 @@ class App
   function res_openid($message, $str)
   {
     $result = $this->do_get('http://123.56.246.56:8099/api/weixin/scan?openid=' . $message->FromUserName . '&str=' . $str);
-    echo "<xml>
+    $errmsg = $result['errmsg'];
+    $data = "<xml>
     <ToUserName><![CDATA[{$message->FromUserName}]]></ToUserName>
     <FromUserName><![CDATA[$message->ToUserName]]></FromUserName>
     <CreateTime>1537183193</CreateTime>
     <MsgType><![CDATA[text]]></MsgType>
-    <Content><![CDATA[{$result}]]></Content>
+    <Content><![CDATA[{$errmsg}]]></Content>
     <MsgId>6602151542321792697</MsgId>
     </xml>";
+    echo $data;
   }
 }
 
