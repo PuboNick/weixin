@@ -77,8 +77,21 @@ class App
     $message = simplexml_load_string($message_content);
     if ($message->MsgType == 'event' && $message->Event == 'SCAN') {
       $this->handle_scan($message);
-    } elseif ($message->MsgType == 'text' && $message->Content == 'openid') {
-      $this->send_back_openid($message);
+    } elseif ($message->MsgType == 'text') {
+      $this->handle_message($message);
+    }
+  }
+  function handle_message($message) 
+  {
+    $content = $message->Content;
+    if($content == 'openid'){
+      $this->send_back_text($message, $message->FromUserName);
+    } elseif (strstr($content, '爱') && !strstr($content, '不爱') || strstr($content, '喜欢') && !strstr($content, '不喜欢')) {
+      $this->send_back_text($message, '谢谢你！我们还在进步中。');
+    } elseif (strstr($content, '不爱') || strstr($content, '不喜欢')) {
+      $this->send_back_text($message, '哦。。');
+    } else {
+      $this->send_back_text($message, '我不是人工智能,不知道你说的是什么。');
     }
   }
   /* 系统模块 */
@@ -334,7 +347,13 @@ class App
       $this->res_openid($message, $data['str']);
     }
   }
-  function send_back_openid($message)
+  function res_openid($message, $str)
+  {
+    $result = $this->do_get('http://123.56.246.56:8099/api/weixin/scan?openid=' . $message->FromUserName . '&str=' . $str);
+    $errmsg = $result['errmsg'];
+    $this->send_back_text($message, $errmsg);
+  }
+  function send_back_text($message, $text) 
   {
     echo "
     <xml>
@@ -342,24 +361,10 @@ class App
     <FromUserName><![CDATA[$message->ToUserName]]></FromUserName>
     <CreateTime>1537183193</CreateTime>
     <MsgType><![CDATA[text]]></MsgType>
-    <Content><![CDATA[{$message->FromUserName}]]></Content>
+    <Content><![CDATA[{$text}]]></Content>
     <MsgId>6602151542321792697</MsgId>
     </xml>
     ";
-  }
-  function res_openid($message, $str)
-  {
-    $result = $this->do_get('http://123.56.246.56:8099/api/weixin/scan?openid=' . $message->FromUserName . '&str=' . $str);
-    $errmsg = $result['errmsg'];
-    $data = "<xml>
-    <ToUserName><![CDATA[{$message->FromUserName}]]></ToUserName>
-    <FromUserName><![CDATA[$message->ToUserName]]></FromUserName>
-    <CreateTime>1537183193</CreateTime>
-    <MsgType><![CDATA[text]]></MsgType>
-    <Content><![CDATA[{$errmsg}]]></Content>
-    <MsgId>6602151542321792697</MsgId>
-    </xml>";
-    echo $data;
   }
 }
 
