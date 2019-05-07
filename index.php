@@ -10,7 +10,8 @@ class App
     'status' => 'HFblz-UJEhmrbTudTbbG1SauNZgZxoSZ0V3JCGw5Was',
     'warning' => 'GbJ_2b_6pfDc4C7XjjIi9E2EK_AXapRkJblEW3TVzcY',
     'gprs' => 'SjPd8w33ojvOnrKcXXmliCn5jDF1Hi47vATxzck4UMg',
-    'equ' => 'A2uD_rCiiB6wd1Hde1zHWsRzHHY8tjgiNCwJ423e7es'
+    'equ' => 'A2uD_rCiiB6wd1Hde1zHWsRzHHY8tjgiNCwJ423e7es',
+    'parts' => 'm4EfSGdRTcOr6bC41_-JI3-hAoPIWdDwIH9y0r6atq0'
   ];
   var $access_file = 'access_token.json';
   function __construct()
@@ -45,6 +46,8 @@ class App
       $this->set_message_3($this->templates['gprs']);
     } elseif ($action === 'send_equ_message' && $this->check_params_3()) {
       $this->set_message_3($this->templates['equ']);
+    } elseif ($action === 'send_parts_message' && $this->check_params_2()) {
+      $this->set_message_2($this->templates['parts']);
     } elseif ($action === 'send_url_message' && $this->check_url_param()) {
       $this->send_url_message();
     } elseif ($action === 'create_menu') {
@@ -186,6 +189,16 @@ class App
     $template_message = array('touser' => $_GET['openid'], 'template_id' => $template_id,'data' => $data);
     $this->send_template_message($template_message);
   }
+  function set_message_2($template_id)
+  {
+    $first = array('value' => $_GET['title']);
+    $keyword1 = array('value' => $_GET['keyword1']);
+    $keyword2 = array('value' => $_GET['keyword2']);
+    $remark = array('value' => $_GET['remark']);
+    $data = array('first' => $first, 'keyword1' => $keyword1, 'keyword2' => $keyword2, 'remark' => $remark);
+    $template_message = array('touser' => $_GET['openid'], 'template_id' => $template_id,'data' => $data);
+    $this->send_template_message($template_message);
+  }
   function send_template_message($template_message)
   {
     $access_token = $this->get_access_token();
@@ -312,6 +325,12 @@ class App
     $str = $_GET['str'];
     $scene = array('scene_str'=>'{"str":"'.$str.'","action":"login"}');
     $this->get_code($scene);
+  }
+  function check_params_2()
+  {
+    $a = !empty($_GET['keyword1']) && !empty($_GET['keyword2']) && !empty($_GET['openid']);
+    $b = !empty($_GET['title']);
+    return $a && $b;
   }
   function check_params_3()
   {
